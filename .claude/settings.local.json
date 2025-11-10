@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(sudo chgrp:*)",
+      "Bash(sudo chmod:*)",
+      "Bash(grep:*)",
+      "Bash(for:*)",
+      "Bash(tail:*)",
+      "Bash(done)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

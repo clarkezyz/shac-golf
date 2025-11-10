@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHAC Golf - Spatial Audio Golf Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="mobile-warning" class="screen">
+            <h1>🖥️ Desktop Only</h1>
+            <div class="warning-content">
+                <p><strong>SHAC Golf is designed for desktop computers with headphones.</strong></p>
+                <p>The spatial audio experience requires:</p>
+                <ul>
+                    <li>🎧 Stereo headphones or speakers</li>
+                    <li>⌨️ Keyboard controls (WASD + Space)</li>
+                    <li>🖱️ Mouse interaction</li>
+                    <li>🖥️ Larger screen for visual elements</li>
+                </ul>
+                <p>For the best experience, please visit this game on a desktop or laptop computer.</p>
+                <button id="continue-anyway" class="menu-btn">Continue Anyway</button>
+            </div>
+        </div>
+
+        <div id="menu-screen" class="screen">
+            <h1>SHAC Golf</h1>
+            <p class="tagline">Navigate by sound. Find the hole.</p>
+            
+            <div class="menu-options">
+                <button id="start-golf" class="menu-btn">Golf Mode</button>
+                <button id="start-timetrial" class="menu-btn">Time Trial</button>
+                <!-- <button id="leaderboard-btn" class="menu-btn">Leaderboards</button> -->
+                <!-- <button id="tutorial-btn" class="menu-btn">Tutorial</button> -->
+                <button id="settings-btn" class="menu-btn">Settings</button>
+            </div>
+            
+            <div class="instructions">
+                <p>Use headphones for best experience</p>
+                <p>WASD/Arrow keys or gamepad to move</p>
+                <p>Space/Enter to swing</p>
+            </div>
+        </div>
+
+        <div id="course-select" class="screen">
+            <h2>Select Course</h2>
+            <div id="course-list"></div>
+            <button class="back-btn">Back</button>
+        </div>
+
+        <div id="sound-preview" class="screen">
+            <h2>Get Ready</h2>
+            <div class="preview-content">
+                <p class="preview-instruction">This is what the target sound sounds like at <strong>zero distance</strong>:</p>
+                <div class="preview-controls">
+                    <button id="preview-sound-btn" class="action-btn">🔊 Play Preview Sound</button>
+                    <div id="preview-info">
+                        <p>Listen carefully - this is exactly how the sound will be when you're right on target.</p>
+                        <p>In the game, you'll hear this same sound positioned in 3D space.</p>
+                    </div>
+                </div>
+                <button id="start-hole-btn" class="action-btn" style="margin-top: 30px;">▶ Start Playing!</button>
+            </div>
+            <button class="back-btn">Back</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div id="game-hud">
+                <div class="hud-left">
+                    <div>Hole <span id="current-hole">1</span> / <span id="total-holes">9</span></div>
+                    <div>Par <span id="hole-par">3</span></div>
+                </div>
+                <div class="hud-center">
+                </div>
+                <div class="hud-right">
+                    <div>Score: <span id="score">0</span></div>
+                </div>
+            </div>
+
+            <canvas id="visualization" width="800" height="600"></canvas>
+            
+            <div id="game-controls">
+                <button id="swing-btn" class="action-btn">SWING</button>
+                <button id="main-menu-btn" class="menu-btn">◄ Main Menu</button>
+            </div>
+
+            <div id="hole-complete" class="overlay hidden">
+                <h2>Hole Complete!</h2>
+                <div class="hole-stats">
+                    <p>Strokes: <span id="final-strokes">0</span></p>
+                    <p>Par: <span id="final-par">0</span></p>
+                    <p>Score: <span id="hole-score">0</span></p>
+                </div>
+                <button id="next-hole-btn">Next Hole</button>
+            </div>
+
+            <div id="course-complete" class="overlay hidden">
+                <h2>Course Complete!</h2>
+                <div class="final-stats">
+                    <p>Total Score: <span id="final-score">0</span></p>
+                    <p>Total Strokes: <span id="total-strokes">0</span></p>
+                    <div id="scorecard"></div>
+                </div>
+                <button id="restart-course">Play Again</button>
+                <button id="course-complete-menu-btn">Main Menu</button>
+            </div>
+        </div>
+
+        <div id="loading" class="overlay">
+            <div class="loading-spinner"></div>
+            <p>Loading audio...</p>
+        </div>
+    </div>
+
+    <script src="audio-engine.js"></script>
+    <script src="visualization.js"></script>
+    <script src="courses.js"></script>
+    <script src="sound-manager.js"></script>
+    <script src="enhanced-sounds.js"></script>
+    <script src="time-trial.js"></script>
+    <script src="settings.js"></script>
+    <script src="hud-system.js"></script>
+    <script src="leaderboard.js"></script>
+    <script src="window-manager.js"></script>
+    <script src="game.js"></script>
+    <script src="game-ui.js"></script>
+</body>
+</html>
