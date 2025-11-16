@@ -129,10 +129,43 @@ class SpatialAudioEngine {
 
     updateListenerPosition(position) {
         this.listener = { ...position };
-        
+
         // Update all active source positions relative to listener
         if (this.currentSource && this.currentSource.panner) {
             this.updateSourcePosition(this.currentSource.panner, this.currentSource.position);
+        }
+    }
+
+    updateListenerOrientation(yaw = 0, pitch = 0) {
+        if (!this.audioContext || !this.audioContext.listener) return;
+
+        // Convert yaw (horizontal rotation, degrees) and pitch (vertical rotation, degrees) to radians
+        const yawRad = yaw * (Math.PI / 180);
+        const pitchRad = pitch * (Math.PI / 180);
+
+        // Calculate forward vector based on yaw and pitch
+        // In Web Audio: +X is right, +Y is up, +Z is backwards (towards listener)
+        // We want 0° yaw = looking forward (-Z direction in Web Audio)
+        const forwardX = Math.sin(yawRad) * Math.cos(pitchRad);
+        const forwardY = Math.sin(pitchRad);
+        const forwardZ = -Math.cos(yawRad) * Math.cos(pitchRad);
+
+        // Up vector (slightly affected by pitch, but generally pointing up)
+        const upX = 0;
+        const upY = 1;
+        const upZ = 0;
+
+        // Use modern API if available
+        if (this.audioContext.listener.forwardX) {
+            this.audioContext.listener.forwardX.value = forwardX;
+            this.audioContext.listener.forwardY.value = forwardY;
+            this.audioContext.listener.forwardZ.value = forwardZ;
+            this.audioContext.listener.upX.value = upX;
+            this.audioContext.listener.upY.value = upY;
+            this.audioContext.listener.upZ.value = upZ;
+        } else if (this.audioContext.listener.setOrientation) {
+            // Fallback to deprecated API
+            this.audioContext.listener.setOrientation(forwardX, forwardY, forwardZ, upX, upY, upZ);
         }
     }
 

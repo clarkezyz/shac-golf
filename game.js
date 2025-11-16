@@ -55,7 +55,16 @@ class Game {
         // Input state
         this.keys = {};
         this.gamepadIndex = null;
-        
+
+        // Mouse look state
+        this.mouseLook = {
+            isDragging: false,
+            lastX: 0,
+            lastY: 0,
+            sensitivity: 0.2 // degrees per pixel
+        };
+        this.playerPitch = 0; // Vertical look angle in degrees (-90 to 90)
+
         this.init();
     }
     
@@ -198,7 +207,13 @@ class Game {
         // Keyboard controls
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
         document.addEventListener('keyup', (e) => this.handleKeyUp(e));
-        
+
+        // Mouse look controls
+        document.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+        document.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        document.addEventListener('mouseup', (e) => this.handleMouseUp(e));
+        document.addEventListener('mouseleave', (e) => this.handleMouseUp(e));
+
         // Gamepad support
         window.addEventListener('gamepadconnected', (e) => {
             this.gamepadIndex = e.gamepad.index;
@@ -295,7 +310,62 @@ class Game {
     handleKeyUp(e) {
         this.keys[e.key.toLowerCase()] = false;
     }
-    
+
+    handleMouseDown(e) {
+        // Only enable mouse look when in playing state
+        if (this.state !== 'playing') return;
+
+        // Don't interfere with UI clicks
+        if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+
+        this.mouseLook.isDragging = true;
+        this.mouseLook.lastX = e.clientX;
+        this.mouseLook.lastY = e.clientY;
+
+        // Change cursor to indicate drag mode
+        document.body.style.cursor = 'grabbing';
+        e.preventDefault();
+    }
+
+    handleMouseMove(e) {
+        if (!this.mouseLook.isDragging || this.state !== 'playing') return;
+
+        const deltaX = e.clientX - this.mouseLook.lastX;
+        const deltaY = e.clientY - this.mouseLook.lastY;
+
+        // Update horizontal rotation (yaw)
+        this.playerFacing += deltaX * this.mouseLook.sensitivity;
+
+        // Normalize to 0-360 range
+        if (this.playerFacing < 0) this.playerFacing += 360;
+        if (this.playerFacing >= 360) this.playerFacing -= 360;
+
+        // Update vertical rotation (pitch)
+        this.playerPitch -= deltaY * this.mouseLook.sensitivity;
+
+        // Clamp pitch to prevent over-rotation
+        this.playerPitch = Math.max(-90, Math.min(90, this.playerPitch));
+
+        // Update stored mouse position
+        this.mouseLook.lastX = e.clientX;
+        this.mouseLook.lastY = e.clientY;
+
+        // Update audio listener orientation for spatial audio
+        this.audioEngine.updateListenerOrientation(this.playerFacing, this.playerPitch);
+
+        // Update display to show new orientation
+        this.updateDisplay();
+
+        e.preventDefault();
+    }
+
+    handleMouseUp(e) {
+        if (this.mouseLook.isDragging) {
+            this.mouseLook.isDragging = false;
+            document.body.style.cursor = 'default';
+        }
+    }
+
     updateGamepad() {
         if (this.gamepadIndex !== null && this.state === 'playing') {
             const gamepad = navigator.getGamepads()[this.gamepadIndex];
@@ -341,14 +411,17 @@ class Game {
             // 0° = north (positive z), 90° = east (positive x), 180° = south, 270° = west
             this.playerFacing = Math.atan2(dx, dz) * (180 / Math.PI);
             if (this.playerFacing < 0) this.playerFacing += 360;
+
+            // Update audio listener orientation when facing changes
+            this.audioEngine.updateListenerOrientation(this.playerFacing, this.playerPitch);
         }
-        
+
         // Update audio listener position
         this.audioEngine.updateListenerPosition(this.player);
-        
+
         // Update visualization
         this.updateDisplay();
-        
+
         // Add to trail
         this.visualization.addToTrail(this.player);
     }
